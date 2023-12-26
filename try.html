@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Score Input</title>
+</head>
+<body>
+  <h1>Score Input</h1>
+
+  <label for="fixtureID">Fixture ID:</label>
+  <input type="text" id="fixtureID" />
+
+  <table>
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Home</th>
+        <th>Away</th>
+      </tr>
+    </thead>
+    <tbody id="scoreTableBody">
+      <!-- Fixed score rows for Full Time, Overtime, Penalties, Periods 1 through 9 -->
+      <tr>
+        <td>Full Time</td>
+        <td><input type="text" class="homeScore" data-period="fullTime"></td>
+        <td><input type="text" class="awayScore" data-period="fullTime"></td>
+      </tr>
+      <tr>
+        <td>Overtime</td>
+        <td><input type="text" class="homeScore" data-period="overtime"></td>
+        <td><input type="text" class="awayScore" data-period="overtime"></td>
+      </tr>
+      <tr>
+        <td>Penalties</td>
+        <td><input type="text" class="homeScore" data-period="penalties"></td>
+        <td><input type="text" class="awayScore" data-period="penalties"></td>
+      </tr>
+      <tr>
+        <td>Period 1</td>
+        <td><input type="text" class="homeScore" data-period="1"></td>
+        <td><input type="text" class="awayScore" data-period="1"></td>
+      </tr>
+      <tr>
+        <td>Period 2</td>
+        <td><input type="text" class="homeScore" data-period="2"></td>
+        <td><input type="text" class="awayScore" data-period="2"></td>
+      </tr>
+      <!-- Repeat the structure for other fixed rows as needed -->
+      <tr>
+        <td>Period 3</td>
+        <td><input type="text" class="homeScore" data-period="3"></td>
+        <td><input type="text" class="awayScore" data-period="3"></td>
+      </tr>
+      <tr>
+        <td>Period 4</td>
+        <td><input type="text" class="homeScore" data-period="4"></td>
+        <td><input type="text" class="awayScore" data-period="4"></td>
+      </tr>
+      <tr>
+        <td>Period 5</td>
+        <td><input type="text" class="homeScore" data-period="5"></td>
+        <td><input type="text" class="awayScore" data-period="5"></td>
+      </tr>
+      <tr>
+        <td>Period 6</td>
+        <td><input type="text" class="homeScore" data-period="6"></td>
+        <td><input type="text" class="awayScore" data-period="6"></td>
+      </tr>
+      <tr>
+        <td>Period 7</td>
+        <td><input type="text" class="homeScore" data-period="7"></td>
+        <td><input type="text" class="awayScore" data-period="7"></td>
+      </tr>
+      <tr>
+        <td>Period 8</td>
+        <td><input type="text" class="homeScore" data-period="8"></td>
+        <td><input type="text" class="awayScore" data-period="8"></td>
+      </tr>
+      <tr>
+        <td>Period 9</td>
+        <td><input type="text" class="homeScore" data-period="9"></td>
+        <td><input type="text" class="awayScore" data-period="9"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button onclick="submitData()">Submit</button>
+  <button onclick="generateExcel()">Generate Excel</button>
+
+  <h2>History</h2>
+  <ul id="historyList"></ul>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  <script>
+    let historyData = [];
+    let selectedFixtureIndex = null;
+
+    function submitData() {
+      const fixtureIDInput = document.getElementById('fixtureID').value || 'N/A';
+      const tableRows = document.querySelectorAll('#scoreTableBody tr');
+      const rowData = { 'Fixture ID': fixtureIDInput };
+
+      // Extract scores for each fixed row
+      tableRows.forEach(row => {
+        const homeScoreInput = row.querySelector('.homeScore');
+        const awayScoreInput = row.querySelector('.awayScore');
+
+        const period = homeScoreInput.getAttribute('data-period');
+        const homeScore = homeScoreInput.value || '0';
+        const awayScore = awayScoreInput.value || '0';
+
+        rowData[`${period} - Home`] = homeScore;
+        rowData[`${period} - Away`] = awayScore;
+      });
+
+      if (selectedFixtureIndex !== null) {
+        historyData[selectedFixtureIndex] = rowData;
+        selectedFixtureIndex = null;
+      } else {
+        historyData.push(rowData);
+      }
+
+      updateHistoryList();
+      resetForm();
+    }
+
+    function updateHistoryList() {
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+
+      historyData.forEach((data, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = JSON.stringify(data);
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', () => editFixture(index));
+        listItem.appendChild(editButton);
+        historyList.appendChild(listItem);
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('fixtureID').value = '';
+      const scoreInputs = document.querySelectorAll('.homeScore, .awayScore');
+      scoreInputs.forEach(input => (input.value = ''));
+    }
+
+    function editFixture(index) {
+      const fixture = historyData[index];
+      document.getElementById('fixtureID').value = fixture['Fixture ID'];
+
+      // Set scores in the form
+      for (const key in fixture) {
+        if (key.endsWith('- Home')) {
+          const period = key.split(' ')[0];
+          const homeScoreInput = document.querySelector(`.homeScore[data-period="${period}"]`);
+          const awayScoreInput = document.querySelector(`.awayScore[data-period="${period}"]`);
+          homeScoreInput.value = fixture[`${period} - Home`];
+          awayScoreInput.value = fixture[`${period} - Away`];
+        }
+      }
+
+      selectedFixtureIndex = index;
+    }
+
+    function generateExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(historyData);
+
+      XLSX.utils.book_append_sheet(wb, ws, 'ScoreSheet');
+      XLSX.writeFile(wb, 'scores.xlsx');
+    }
+  </script>
+</body>
+</html>
