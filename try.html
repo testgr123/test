@@ -46,7 +46,6 @@
         <td><input type="text" class="homeScore" data-period="2"></td>
         <td><input type="text" class="awayScore" data-period="2"></td>
       </tr>
-      <!-- Repeat the structure for other fixed rows as needed -->
       <tr>
         <td>Period 3</td>
         <td><input type="text" class="homeScore" data-period="3"></td>
@@ -100,7 +99,9 @@
       const fixtureIDInput = document.getElementById('fixtureID').value || 'N/A';
 
       // Check if the fixture ID has already been submitted
-      if (historyData.some(data => data['Fixture ID'] === fixtureIDInput)) {
+      const existingFixtureIndex = historyData.findIndex(data => data['Fixture ID'] === fixtureIDInput);
+
+      if (existingFixtureIndex !== -1 && existingFixtureIndex !== selectedFixtureIndex) {
         window.alert('Fixture has already been added!');
         return;
       }
