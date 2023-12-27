@@ -114,22 +114,28 @@
         const awayScoreInput = row.querySelector('.awayScore');
 
         const period = homeScoreInput.getAttribute('data-period');
-        const homeScore = homeScoreInput.value || '0';
-        const awayScore = awayScoreInput.value || '0';
+        const homeScore = homeScoreInput.value.trim() || undefined; // Set to undefined if empty
+        const awayScore = awayScoreInput.value.trim() || undefined;
 
-        rowData[`${period} - Home`] = homeScore;
-        rowData[`${period} - Away`] = awayScore;
+        if (homeScore !== undefined || awayScore !== undefined) {
+          // Only add scores if at least one is not empty
+          rowData[`${period} - Home`] = homeScore;
+          rowData[`${period} - Away`] = awayScore;
+        }
       });
 
-      if (selectedFixtureIndex !== null) {
-        historyData[selectedFixtureIndex] = rowData;
-        selectedFixtureIndex = null;
-      } else {
-        historyData.push(rowData);
-      }
+      if (Object.keys(rowData).length > 1) {
+        // Only add to historyData if there's data other than 'Fixture ID'
+        if (selectedFixtureIndex !== null) {
+          historyData[selectedFixtureIndex] = rowData;
+          selectedFixtureIndex = null;
+        } else {
+          historyData.push(rowData);
+        }
 
-      updateHistoryList();
-      resetForm();
+        updateHistoryList();
+        resetForm();
+      }
     }
 
     function updateHistoryList() {
@@ -163,8 +169,8 @@
           const period = key.split(' ')[0];
           const homeScoreInput = document.querySelector(`.homeScore[data-period="${period}"]`);
           const awayScoreInput = document.querySelector(`.awayScore[data-period="${period}"]`);
-          homeScoreInput.value = fixture[`${period} - Home`];
-          awayScoreInput.value = fixture[`${period} - Away`];
+          homeScoreInput.value = fixture[`${period} - Home`] || '';
+          awayScoreInput.value = fixture[`${period} - Away`] || '';
         }
       }
 
