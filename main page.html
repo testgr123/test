@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Bets Closure</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Calibri', sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #03fca5;
+    }
+
+    p {
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .navigation-button {
+      background-color: #03fca5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bulk Bets Closure</h1>
+  <p>Please select whether you want to settle fixture odd ids by Fixture or resulting with scores for given matches.</p>
+
+  <button class="navigation-button" onclick="navigateTo('test.html')">Match Result</button>
+  <button class="navigation-button" onclick="navigateTo('fixture.html')">Fixture Odd ID Result</button>
+
+  <script>
+    function navigateTo(url) {
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
