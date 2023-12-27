@@ -85,8 +85,8 @@
     </tbody>
   </table>
 
-  <button onclick="submitData()">Submit</button>
-  <button onclick="generateExcel()">Generate Excel</button>
+  <button onclick="submitData()" style="background-color: #03fca5; color: white;">Submit</button>
+  <button onclick="generateExcel()" style="background-color: #03fca5; color: white;">Generate Excel</button>
 
   <h2>History</h2>
   <ul id="historyList"></ul>
@@ -98,6 +98,13 @@
 
     function submitData() {
       const fixtureIDInput = document.getElementById('fixtureID').value || 'N/A';
+
+      // Check if the fixture ID has already been submitted
+      if (historyData.some(data => data['Fixture ID'] === fixtureIDInput)) {
+        window.alert('Fixture has already been added!');
+        return;
+      }
+
       const tableRows = document.querySelectorAll('#scoreTableBody tr');
       const rowData = { 'Fixture ID': fixtureIDInput };
 
