@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture Odd ID Input</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: 'Calibri', sans-serif;
+    }
+
+    form {
+      margin: 20px;
+    }
+
+    table {
+      margin: auto;
+    }
+
+    .add-row-button {
+      background-color: #03fca5;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #submitButton {
+      background-color: #03fca5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fixture Odd ID Input</h1>
+
+  <form id="fixtureForm">
+    <label for="fixtureID">Fixture ID:</label>
+    <input type="text" id="fixtureID" />
+    <button type="button" onclick="addFixture()">Add Fixture</button>
+  </form>
+
+  <table id="fixtureOddTable">
+    <thead>
+      <tr>
+        <th>Fixture ID</th>
+        <th>Fixture Odd ID</th>
+        <th>Status</th>
+        <th>Result</th>
+        <th>Void</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="fixtureOddTableBody"></tbody>
+  </table>
+
+  <button id="submitButton" onclick="generateExcel()">Submit</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  <script>
+    function addFixture() {
+      const fixtureIDInput = document.getElementById('fixtureID').value;
+
+      if (!fixtureIDInput) {
+        alert('Please enter a Fixture ID.');
+        return;
+      }
+
+      const tableBody = document.getElementById('fixtureOddTableBody');
+      const newRow = tableBody.insertRow();
+
+      const fixtureIDCell = newRow.insertCell(0);
+      fixtureIDCell.textContent = fixtureIDInput;
+
+      const fixtureOddIDCell = newRow.insertCell(1);
+      const fixtureOddIDInput = document.createElement('input');
+      fixtureOddIDInput.type = 'text';
+      fixtureOddIDCell.appendChild(fixtureOddIDInput);
+
+      const statusCell = newRow.insertCell(2);
+      const statusSelect = createDropdown(['', 'Settled', 'Cancelled']);
+      statusCell.appendChild(statusSelect);
+
+      const resultCell = newRow.insertCell(3);
+      const resultSelect = createDropdown(['', 'Won', 'Lose']);
+      resultCell.appendChild(resultSelect);
+
+      const voidCell = newRow.insertCell(4);
+      const voidSelect = createDropdown(['', '1.00']);
+      voidCell.appendChild(voidSelect);
+
+      const actionCell = newRow.insertCell(5);
+      const addButton = document.createElement('button');
+      addButton.innerHTML = '+';
+      addButton.className = 'add-row-button';
+      addButton.onclick = addFixture;
+      actionCell.appendChild(addButton);
+    }
+
+    function createDropdown(options) {
+      const select = document.createElement('select');
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.text = '';
+      select.add(defaultOption);
+
+      options.forEach(optionText => {
+        const option = document.createElement('option');
+        option.value = optionText;
+        option.text = optionText;
+        select.add(option);
+      });
+
+      return select;
+    }
+
+    function generateExcel() {
+      const table = document.getElementById('fixtureOddTable');
+      const rows = Array.from(table.rows);
+
+      // Create an array to hold the worksheet data
+      const data = [];
+
+      // Iterate through the rows and cells to populate the data array
+      rows.forEach(row => {
+        const rowData = Array.from(row.cells).map(cell => {
+          if (cell.firstChild && cell.firstChild.tagName === 'INPUT') {
+            return cell.firstChild.value; // For input fields
+          } else if (cell.firstChild && cell.firstChild.tagName === 'SELECT') {
+            return cell.firstChild.value; // For dropdowns
+          } else {
+            return cell.textContent.trim(); // For regular cells
+          }
+        });
+
+        // Exclude the "Action" column
+        rowData.pop();
+
+        data.push(rowData);
+      });
+
+      // Create a worksheet
+      const ws = XLSX.utils.aoa_to_sheet(data);
+
+      // Create a workbook and add the worksheet to it
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'FixtureOddSheet');
+
+      // Save the workbook
+      XLSX.writeFile(wb, 'fixture_odd_data.xlsx');
+    }
+  </script>
+</body>
+</html>
